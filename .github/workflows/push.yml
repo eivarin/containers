@@ -1,0 +1,19 @@
+name: Push to main CI
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+  attestations: write
+  id-token: write
+
+jobs:
+  J1-1:
+    uses: ./.github/workflows/imageBuildAndPublish.yml
+    with:
+      path: 'apps/actions-runner'
+      packageName: 'actions-runner'
