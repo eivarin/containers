@@ -21,6 +21,7 @@ RUN \
         imagemagick \
         file \
         inotify-tools \
+        gh \
     && rm -rf /var/lib/apt/lists/*
 
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
