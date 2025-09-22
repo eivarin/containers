@@ -19,13 +19,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - run: |
-          ls apps | xargs -I _ echo "_: apps/_" > .github/targets.txt
+      - id: detect_targets
+        run: |
+          echo 'targets=$(ls apps | xargs -I _ echo "_: apps/_")' >> $GITHUB_OUTPUT
 
       - uses: dorny/paths-filter@v2
         id: filter
         with:
-          filters: .github/targets.txt
+          filters: ${{ steps.detect_targets.outputs.targets }}
 
   build:
     needs: prepare
