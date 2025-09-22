@@ -2,7 +2,8 @@ name: Push to main CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -18,29 +19,42 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-
       - id: detect_targets
         run: |
-          echo 'targets=$(ls apps | xargs -I _ echo "_: apps/_")' >> $GITHUB_OUTPUT
+          ls apps | xargs -I _ echo '_: apps/_/**' > .github/filters.yaml
+          echo 'targets<<EOF' >> $GITHUB_OUTPUT
+          ls apps | xargs -I _ echo '_: apps/_' | yq >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
 
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@v3
         id: filter
         with:
-          filters: ${{ steps.detect_targets.outputs.targets }}
+          base: ci-processed
+          ref: main
+          filters: .github/filters.yaml
+      
+      - name: Show targets
+        run: |
+          echo "Changed packages: ${{ steps.filter.outputs.changes }}"
 
   build:
     needs: prepare
     runs-on: ubuntu-latest
+    if: needs.prepare.outputs.packages != '[]'
     strategy:
       matrix:
         package: ${{ fromJson(needs.prepare.outputs.packages) }}
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v5
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
       - name: Get Version
         id: version
         run: echo "image_version=$(cat apps/${{ matrix.package }}/.version)" >> $GITHUB_OUTPUT
@@ -60,6 +74,13 @@ jobs:
       - run: cat ${{ steps.meta.outputs.bake-file }}
         name: Show bake file
 
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build
         uses: docker/bake-action@v6
         with:
@@ -70,3 +91,21 @@ jobs:
           targets: image
           set: |
             image.context=./apps/${{ matrix.package }}
+
+  finnish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git checkout ci-processed # Change this to your target branch
+          git merge main --no-ff -m "chore(auto-merge): Merged ${{ github.sha }} from main branch"
+          git push origin ci-processed
