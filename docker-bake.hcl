@@ -1,0 +1,21 @@
+variable "DEFAULT_TAG" {
+  type    = string
+  default = "ghcr.io/eivarin/coreemu:local"
+}
+
+group "default" {
+  targets = ["image-local"]
+}
+
+target "docker-metadata-action" {
+  tags = ["${DEFAULT_TAG}"]
+}
+
+target "image" {
+  inherits = [ "docker-metadata-action" ] 
+}
+
+target "image-local" {
+  inherits = ["image"]
+  output = ["type=docker"]
+}
