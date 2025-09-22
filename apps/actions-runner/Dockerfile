@@ -1,5 +1,5 @@
 FROM --platform=amd64 ghcr.io/actions/actions-runner:2.320.0
-LABEL org.opencontainers.image.source=https://github.com/eivarin/containers
+
 ENV DEBCONF_NONINTERACTIVE_SEEN=true \
     DEBIAN_FRONTEND="noninteractive" \
     APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn

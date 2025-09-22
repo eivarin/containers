@@ -1,3 +1,43 @@
-FROM nextcloud:30.0.6-fpm-alpine
+FROM nextcloud:31.0.8-fpm-alpine
 
-RUN apk add --no-cache procps samba-client ffmpeg
+RUN apk add --no-cache \
+  procps \
+  samba-client \
+  exiftool \
+  perl \
+  ffmpeg \
+  imagemagick \
+  imagemagick-heic \
+  imagemagick-jpeg \
+  imagemagick-pdf \
+  imagemagick-svg \
+  gnu-libiconv \
+  libxml2 \
+  php82-apcu \
+  php82-bcmath \
+  php82-bz2 \
+  php82-dom \
+  php82-exif \
+  php82-ftp \
+  php82-gd \
+  php82-gmp \
+  php82-imap \
+  php82-intl \
+  php82-ldap \
+  php82-opcache \
+  php82-pcntl \
+  php82-pdo_mysql \
+  php82-pdo_pgsql \
+  php82-pdo_sqlite \
+  php82-pecl-imagick \
+  php82-pecl-memcached \
+  php82-pecl-smbclient \
+  php82-pgsql \
+  php82-posix \
+  php82-redis \
+  php82-sodium \
+  php82-sqlite3 \
+  php82-sysvsem \
+  php82-xmlreader \
+  rsync \
+  util-linux
