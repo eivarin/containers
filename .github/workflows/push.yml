@@ -92,8 +92,9 @@ jobs:
           set: |
             image.context=./apps/${{ matrix.package }}
 
-  finnish:
+  finish:
     needs: build
+    if: always() && (needs.build.result == 'success' || needs.build.result == 'skipped')
     runs-on: ubuntu-latest
     permissions:
       contents: write
