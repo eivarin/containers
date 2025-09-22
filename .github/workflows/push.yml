@@ -107,5 +107,5 @@ jobs:
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
           git checkout ci-processed # Change this to your target branch
-          git merge main --no-ff -m "chore(auto-merge): Merged ${{ github.sha }} from main branch"
-          git push origin ci-processed
+          git rebase main
+          git push
